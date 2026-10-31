@@ -173,7 +173,7 @@ All four are served through Ollama Modelfiles at
 `temperature 0.65, top_p 0.9, repeat_penalty 1.12, num_ctx 4096`; the box itself
 requests `repeat_penalty 1.18` per call, which overrides the baked value.
 
-### What the ghosts said (kept in `seances/`, unedited)
+### What the ghosts said (kept in this repository, unedited)
 
 - **transcript-machines.txt** — asked whether talking machines do good or harm,
   the ghosts argue about judgment, will, and whether a machine may judge at all —
@@ -200,7 +200,7 @@ above. One submits the house; the ghost just happens to live in it.
 
 This repository is the Week 4 submission. **New this week:** the Spirit Box page,
 the spirit roster, the piloted debate engine (Medium turns included), the two
-debate Modelfiles, this README, and the transcripts in `seances/`. **Reused and
+debate Modelfiles, this README, and the transcripts in this repository. **Reused and
 cited:** the two canonical Montaigne models (15/09/2026, links above).
 
 - **Post:** [dev.to — *The Spirit Box*](https://dev.to/) *(URL at publish time)*
@@ -208,7 +208,7 @@ cited:** the two canonical Montaigne models (15/09/2026, links above).
 - **Tags:** `#devchallenge` `#hf26challenge`
 - **Prize categories entered:**
   - *Best Use of Entire* — the agent sessions behind the project are Part 2 above
-    and the raw transcripts in `seances/`;
+    and the raw transcripts in this repository;
   - *Best Use of a .tech Domain* — the project page linked above.
 
 ---
