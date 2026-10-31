@@ -12,17 +12,18 @@
     --amber:#d8a86a; --mint:#9fd08a;
   }
   *{box-sizing:border-box}
-  html,body{height:100%}
+  html,body{height:100%;overflow:hidden}
   body{margin:0;background:var(--bg);color:var(--ink);
        font-family:Georgia,'Palatino Linotype','Times New Roman',serif;
        display:flex;flex-direction:column;align-items:center;
        background-image:radial-gradient(ellipse at 50% -20%, #1e2836 0%, transparent 55%),
                         radial-gradient(ellipse at 50% 120%, #14100c 0%, transparent 60%)}
-  #app{width:100%;max-width:880px;display:flex;flex-direction:column;flex:1;min-height:100%}
+  #app{width:100%;max-width:880px;display:flex;flex-direction:column;position:relative;
+       height:100vh;height:100dvh;overflow:hidden}
 
-  header{padding:18px 24px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;
+  header{padding:10px 24px 8px;display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;flex:none;
          justify-content:space-between;border-bottom:1px solid var(--line)}
-  h1{font-size:1.35rem;margin:0;letter-spacing:.22em;font-weight:normal;color:var(--brass);
+  h1{font-size:1.1rem;margin:0;letter-spacing:.22em;font-weight:normal;color:var(--brass);
      text-transform:uppercase;font-variant:small-caps;text-shadow:0 0 18px #c9a22733}
   h1 .radio{display:inline-block;margin-right:.35em}
   .statut{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--dim);
@@ -32,39 +33,39 @@
   .dot.off{background:var(--cut)}
 
   /* tabs */
-  #tabs{display:flex;gap:6px;padding:12px 24px 0}
+  #tabs{display:flex;gap:6px;padding:8px 24px 0;flex:none}
   #tabs button{flex:1;background:linear-gradient(180deg,var(--panel2),var(--panel));
     border:1px solid var(--line);border-bottom:none;border-radius:6px 6px 0 0;color:var(--dim);
-    padding:10px 6px;cursor:pointer;font-family:inherit;font-size:.88rem;letter-spacing:.14em;
+    padding:7px 6px;cursor:pointer;font-family:inherit;font-size:.88rem;letter-spacing:.14em;
     text-transform:uppercase;font-variant:small-caps}
   #tabs button.on{color:var(--phos);border-color:var(--phos-dim);
     box-shadow:0 -6px 18px #a8f07a0d inset}
   #tabs button:hover{color:var(--ink)}
 
   .sheet{border:1px solid var(--line);border-radius:0 0 8px 8px;background:var(--panel);
-         padding:18px 24px;margin:0 24px}
+         padding:10px 20px;margin:0 20px}
 
-  /* the receiver */
+  /* the receiver — compact: it must never eat the conversation's room */
   #receiver{background:linear-gradient(180deg,#1d232e,#151920);border:1px solid var(--line);
-            border-radius:10px;padding:16px;box-shadow:0 10px 30px #00000055, 0 1px 0 #ffffff08 inset}
-  #screen{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+            border-radius:10px;padding:8px 12px;box-shadow:0 10px 30px #00000055, 0 1px 0 #ffffff08 inset}
+  #screen{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
   .crt{position:relative;border:1px solid #000;border-radius:6px;overflow:hidden;
        box-shadow:0 0 0 1px #2a3038, 0 4px 14px #00000066 inset;background:#000}
   .crt::after{content:"";position:absolute;inset:0;pointer-events:none;
        background:repeating-linear-gradient(0deg,#00000026 0 1px,transparent 1px 3px)}
-  #freq{font-family:'Courier New',monospace;font-size:2.2rem;color:var(--phos);
-        letter-spacing:.08em;text-shadow:0 0 14px #a8f07a88;min-width:200px}
+  #freq{font-family:'Courier New',monospace;font-size:1.25rem;color:var(--phos);
+        letter-spacing:.08em;text-shadow:0 0 14px #a8f07a88;min-width:140px}
   #freq.sweep{animation:scintille .45s infinite}
   @keyframes scintille{0%,100%{opacity:1}50%{opacity:.5}}
-  #box-state{font-size:.72rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;
+  #box-state{font-size:.66rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;
              font-family:'Courier New',monospace;margin-top:2px}
-  #station{font-size:.95rem;color:var(--brass);font-style:italic;margin-top:6px}
-  #serving{font-size:.72rem;color:var(--dim);margin-top:4px;font-family:'Courier New',monospace}
-  #pickers{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;align-items:flex-end}
+  #station{font-size:.85rem;color:var(--brass);font-style:italic;margin-top:6px}
+  #serving{font-size:.66rem;color:var(--dim);margin-top:4px;font-family:'Courier New',monospace}
+  #pickers{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px;align-items:flex-end}
   .picker label{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
                 color:var(--dim);margin-bottom:4px}
   select,input[type=text]{background:#0b0e12;color:var(--ink);border:1px solid var(--line);
-       border-radius:4px;font-family:inherit;font-size:.9rem;padding:8px 10px}
+       border-radius:4px;font-family:inherit;font-size:.85rem;padding:6px 9px}
   select:focus,input[type=text]:focus,textarea:focus{outline:1px solid var(--phos-dim)}
 
   /* debate */
@@ -77,7 +78,7 @@
   /* the transcript: one mental model — a conversation is a list of turns.
      ALWAYS visible: you watch the spirits answer, turn by turn. */
   #transcript{border:1px solid var(--line);border-radius:8px;background:#10131a;
-          max-height:52vh;overflow-y:auto}
+          flex:1;min-height:0;overflow-y:auto}
   #transcript h4{margin:0;padding:10px 14px;font-size:.7rem;letter-spacing:.18em;
              text-transform:uppercase;color:var(--phos-dim);font-weight:normal;
              border-bottom:1px solid var(--line);position:sticky;top:0;background:#10131a}
@@ -102,9 +103,9 @@
        padding:8px 10px;line-height:1.5;resize:vertical}
   .hint{font-size:.78rem;color:var(--dim);font-style:italic;line-height:1.5}
 
-  /* conversation (manual medium) */
-  #corps{flex:1;overflow-y:auto;padding:18px 24px;display:flex;flex-direction:column;gap:12px;
-         margin-top:14px}
+  /* conversation (manual medium) — THE place that grows: bounded, internal scroll */
+  #corps{flex:1;min-height:0;overflow-y:auto;padding:14px 24px;display:flex;flex-direction:column;gap:12px;
+         margin-top:12px}
   .msg{max-width:80%;padding:10px 16px;border-radius:10px;line-height:1.6;white-space:pre-wrap;
        box-shadow:0 4px 14px #00000033}
   .msg.user{align-self:flex-end;background:#232b36;border:1px solid var(--line);
@@ -117,9 +118,11 @@
   .msg.syst{align-self:center;color:var(--dim);font-style:italic;font-size:.8rem;background:none;
             border:none;box-shadow:none;text-align:center}
 
-  /* install panel */
-  #install-panel{display:none;margin:18px 24px;padding:22px;border:1px solid var(--line);
-       border-radius:8px;background:var(--panel);font-size:.9rem;line-height:1.6}
+  /* install panel — floats above the conversation, never pushes it away */
+  #install-panel{display:none;position:absolute;left:24px;right:24px;bottom:76px;z-index:10;
+       max-height:62%;overflow-y:auto;margin:0;padding:22px;border:1px solid var(--line);
+       border-radius:8px;background:var(--panel);font-size:.9rem;line-height:1.6;
+       box-shadow:0 18px 50px #000000cc}
   #install-panel h2{color:var(--brass);font-weight:normal;margin-top:0;letter-spacing:.08em;
                     font-variant:small-caps}
   #install-panel code{background:#0b0e12;padding:6px 10px;border:1px solid var(--line);
@@ -129,12 +132,12 @@
   #cors-ritual{display:none;margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
   #cors-ritual h3{color:var(--cut);font-size:.85rem;font-weight:normal;margin:0 0 6px}
 
-  footer{width:100%;max-width:880px;border-top:1px solid var(--line);padding:12px 24px;
+  footer{width:100%;max-width:880px;border-top:1px solid var(--line);padding:9px 24px;flex:none;
          background:linear-gradient(180deg,var(--panel),#10131a);display:flex;gap:10px;
          align-items:flex-end}
   textarea{flex:1;background:#0b0e12;color:var(--ink);border:1px solid var(--line);
        border-radius:6px;font-family:inherit;font-size:1rem;padding:10px;resize:none;
-       height:54px}
+       height:44px}
   button{background:linear-gradient(180deg,var(--brass),var(--brass-dim));color:#171310;
        border:1px solid #00000088;padding:12px 20px;cursor:pointer;font-family:inherit;
        font-size:.95rem;border-radius:6px;letter-spacing:.06em;font-weight:bold;
@@ -145,8 +148,11 @@
   button.ghostbtn{background:none;border:1px solid var(--line);color:var(--dim);padding:7px 12px;
        font-size:.78rem;box-shadow:none;font-weight:normal}
   button.ghostbtn:hover{color:var(--phos);border-color:var(--phos-dim)}
-  #toolbar{display:flex;gap:8px;align-items:center;padding:8px 24px;border-top:1px solid var(--line);
-       font-size:.78rem;color:var(--dim);background:var(--panel)}
+  #toolbar{display:flex;gap:8px;align-items:center;padding:5px 24px;border-top:1px solid var(--line);
+       font-size:.78rem;color:var(--dim);background:var(--panel);flex:none}
+  /* the debate and roster sheets become the scrollable heart of the page */
+  #sheet-debate{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+  #sheet-spirits{display:none;flex:1;min-height:0;overflow-y:auto}
   @media(max-width:760px){.msg{max-width:92%}h1{font-size:1rem}}
 </style>
 </head>
@@ -168,7 +174,7 @@
 <div id="sheet-medium" class="sheet">
   <div id="receiver">
     <div id="screen">
-      <div class="crt"><canvas id="static" width="240" height="72"></canvas></div>
+      <div class="crt"><canvas id="static" width="180" height="46"></canvas></div>
       <div>
         <div id="freq">87.5 MHz</div>
         <div id="box-state">idle — sweep stopped</div>
@@ -441,7 +447,7 @@ document.querySelectorAll("#tabs button").forEach(b=>{
     vue = b.dataset.v;
     const inDebate = vue === "debate";
     $("#sheet-medium").style.display = vue === "medium" ? "block" : "none";
-    $("#sheet-debate").style.display = inDebate ? "block" : "none";
+    $("#sheet-debate").style.display = inDebate ? "flex" : "none";
     $("#sheet-spirits").style.display = vue === "spirits" ? "block" : "none";
     $("#foot-conv").style.display = vue === "spirits" ? "none" : "flex";
     $("#toolbar").style.display = "flex";
