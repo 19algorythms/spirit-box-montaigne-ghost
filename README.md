@@ -10,6 +10,13 @@ conversation with one spirit, or an open debate between two of them.
 No account. No cloud. No telemetry. The ghost comes to *your* house; no byte ever
 leaves the room.
 
+| Talk — one spirit on the line | Open debate — two voices, and you hold the pendulum |
+|---|---|
+| ![Talk: Montaigne answers a question about being dead](screenshot-talk.png) | ![Open debate: the Sceptique and the Confiant argue whether cats rule the world, and the Medium intervenes](screenshot-debate.png) |
+
+*Real outputs, unedited — a 3 B distilled Montaigne answering in late-sixteenth-century
+French, and a debate that pauses after every turn for the Medium's word.*
+
 ---
 
 ## Part 1 — The Spirit Box (the tool)
