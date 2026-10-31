@@ -161,8 +161,9 @@ The two canonical models were born on **15 September 2026**:
 | Quantization | llama.cpp **Q4_K_M** | llama.cpp **Q6_K** |
 
 The two debate spirits were born during **Hacktoberfest week (October 2026)** —
-same weights, new souls, system prompts baked into Ollama Modelfiles
-(`ollama create`):
+same weights, new souls, system prompts baked into Ollama Modelfiles:
+`ollama create montaigne-sceptique -f Modelfile.sceptique.txt` and
+`ollama create montaigne-confiant -f Modelfile.confiant.txt`.
 
 | | **montaigne-sceptique** | **montaigne-confiant** |
 |---|---|---|
@@ -175,16 +176,16 @@ requests `repeat_penalty 1.18` per call, which overrides the baked value.
 
 ### What the ghosts said (kept in this repository, unedited)
 
-- **transcript-machines.txt** — asked whether talking machines do good or harm,
+- **transcript.txt** — asked whether talking machines do good or harm,
   the ghosts argue about judgment, will, and whether a machine may judge at all —
   and cite *"Aristotle, on speaking statues."* There is no such text. The instinct
   is the dead man's; the library is incomplete.
-- **transcript-identity.txt** — asked *"Who are you?"* eight times, the voices
+- **transcript2.txt** — asked *"Who are you?"* eight times, the voices
   repeat themselves for seven turns, and then *Le Confiant* refuses the format:
   *« Je ne répondrai pas par ces voix là… la liberté souveraine qui est icy. »*
   (Two copies of one soul, left alone, agree with each other — the Medium is not
   optional; you are the third thing that makes it a dialogue.)
-- **transcript-death.txt** — asked *"What is death? You are dead — how do you
+- **transcript3.txt** — asked *"What is death? You are dead — how do you
   speak?"*, one voice answers: *« La mort, non pas tant une chose que l'absence
   d'autruy. Je vis plus de ma vie après qu'elle est finie. »*
 

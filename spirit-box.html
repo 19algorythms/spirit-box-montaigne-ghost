@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Spirit Box</title>
+<style>
+  :root{
+    --bg:#0c0e11; --panel:#151920; --panel2:#1b2029; --ink:#e6e1d5;
+    --dim:#8b93a0; --line:#2a3038; --phos:#a8f07a; --phos-dim:#5f8a4c;
+    --brass:#c9a227; --brass-dim:#8a6d1d; --cut:#b0552f;
+    --amber:#d8a86a; --mint:#9fd08a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:Georgia,'Palatino Linotype','Times New Roman',serif;
+       display:flex;flex-direction:column;align-items:center;
+       background-image:radial-gradient(ellipse at 50% -20%, #1e2836 0%, transparent 55%),
+                        radial-gradient(ellipse at 50% 120%, #14100c 0%, transparent 60%)}
+  #app{width:100%;max-width:880px;display:flex;flex-direction:column;flex:1;min-height:100%}
+
+  header{padding:18px 24px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;
+         justify-content:space-between;border-bottom:1px solid var(--line)}
+  h1{font-size:1.35rem;margin:0;letter-spacing:.22em;font-weight:normal;color:var(--brass);
+     text-transform:uppercase;font-variant:small-caps;text-shadow:0 0 18px #c9a22733}
+  h1 .radio{display:inline-block;margin-right:.35em}
+  .statut{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--dim);
+          font-family:'Courier New',monospace}
+  .dot{width:8px;height:8px;border-radius:50%;background:#5a6570}
+  .dot.on{background:var(--phos);box-shadow:0 0 8px var(--phos)}
+  .dot.off{background:var(--cut)}
+
+  /* tabs */
+  #tabs{display:flex;gap:6px;padding:12px 24px 0}
+  #tabs button{flex:1;background:linear-gradient(180deg,var(--panel2),var(--panel));
+    border:1px solid var(--line);border-bottom:none;border-radius:6px 6px 0 0;color:var(--dim);
+    padding:10px 6px;cursor:pointer;font-family:inherit;font-size:.88rem;letter-spacing:.14em;
+    text-transform:uppercase;font-variant:small-caps}
+  #tabs button.on{color:var(--phos);border-color:var(--phos-dim);
+    box-shadow:0 -6px 18px #a8f07a0d inset}
+  #tabs button:hover{color:var(--ink)}
+
+  .sheet{border:1px solid var(--line);border-radius:0 0 8px 8px;background:var(--panel);
+         padding:18px 24px;margin:0 24px}
+
+  /* the receiver */
+  #receiver{background:linear-gradient(180deg,#1d232e,#151920);border:1px solid var(--line);
+            border-radius:10px;padding:16px;box-shadow:0 10px 30px #00000055, 0 1px 0 #ffffff08 inset}
+  #screen{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+  .crt{position:relative;border:1px solid #000;border-radius:6px;overflow:hidden;
+       box-shadow:0 0 0 1px #2a3038, 0 4px 14px #00000066 inset;background:#000}
+  .crt::after{content:"";position:absolute;inset:0;pointer-events:none;
+       background:repeating-linear-gradient(0deg,#00000026 0 1px,transparent 1px 3px)}
+  #freq{font-family:'Courier New',monospace;font-size:2.2rem;color:var(--phos);
+        letter-spacing:.08em;text-shadow:0 0 14px #a8f07a88;min-width:200px}
+  #freq.sweep{animation:scintille .45s infinite}
+  @keyframes scintille{0%,100%{opacity:1}50%{opacity:.5}}
+  #box-state{font-size:.72rem;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;
+             font-family:'Courier New',monospace;margin-top:2px}
+  #station{font-size:.95rem;color:var(--brass);font-style:italic;margin-top:6px}
+  #serving{font-size:.72rem;color:var(--dim);margin-top:4px;font-family:'Courier New',monospace}
+  #pickers{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;align-items:flex-end}
+  .picker label{display:block;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;
+                color:var(--dim);margin-bottom:4px}
+  select,input[type=text]{background:#0b0e12;color:var(--ink);border:1px solid var(--line);
+       border-radius:4px;font-family:inherit;font-size:.9rem;padding:8px 10px}
+  select:focus,input[type=text]:focus,textarea:focus{outline:1px solid var(--phos-dim)}
+
+  /* debate */
+  #debate-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px}
+  #topic{flex:1;min-width:220px}
+  #cut{display:none;background:none;border:1px solid var(--cut);color:var(--cut)}
+  #cut:hover{background:var(--cut);color:var(--ink)}
+  #deb-status{font-size:.82rem;color:var(--dim);font-style:italic;margin:0 0 10px;text-align:center}
+
+  /* the transcript: one mental model — a conversation is a list of turns.
+     ALWAYS visible: you watch the spirits answer, turn by turn. */
+  #transcript{border:1px solid var(--line);border-radius:8px;background:#10131a;
+          max-height:52vh;overflow-y:auto}
+  #transcript h4{margin:0;padding:10px 14px;font-size:.7rem;letter-spacing:.18em;
+             text-transform:uppercase;color:var(--phos-dim);font-weight:normal;
+             border-bottom:1px solid var(--line);position:sticky;top:0;background:#10131a}
+  .tour{padding:10px 14px;line-height:1.6;white-space:pre-wrap;font-size:.95rem;
+        border-bottom:1px dashed #232a33}
+  .tour:last-child{border-bottom:none}
+  .tour .qui{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:3px}
+  .tour.q0 .qui{color:var(--amber)}
+  .tour.q1 .qui{color:var(--mint)}
+  .tour.medium{background:#181407;border-left:3px solid var(--amber);border-bottom:1px dashed #2a2410}
+  .tour.medium .qui{color:var(--amber);font-weight:bold}
+  .tour .attente{color:var(--dim);font-style:italic}
+
+  /* roster (spirit configuration) — everything visible, editable live */
+  .spirit-card{border:1px solid var(--line);border-radius:8px;background:var(--panel2);
+               padding:14px;margin-bottom:14px}
+  .spirit-card .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+  .spirit-card input[type=text]{flex:1;min-width:160px}
+  .spirit-card select{max-width:320px}
+  .spirit-card textarea{width:100%;min-height:96px;background:#0b0e12;color:var(--ink);
+       border:1px solid var(--line);border-radius:4px;font-family:inherit;font-size:.88rem;
+       padding:8px 10px;line-height:1.5;resize:vertical}
+  .hint{font-size:.78rem;color:var(--dim);font-style:italic;line-height:1.5}
+
+  /* conversation (manual medium) */
+  #corps{flex:1;overflow-y:auto;padding:18px 24px;display:flex;flex-direction:column;gap:12px;
+         margin-top:14px}
+  .msg{max-width:80%;padding:10px 16px;border-radius:10px;line-height:1.6;white-space:pre-wrap;
+       box-shadow:0 4px 14px #00000033}
+  .msg.user{align-self:flex-end;background:#232b36;border:1px solid var(--line);
+            border-bottom-right-radius:2px}
+  .msg.ghost{align-self:flex-start;background:linear-gradient(180deg,var(--panel2),var(--panel));
+             border:1px solid var(--line);border-left:3px solid var(--phos);
+             border-bottom-left-radius:2px}
+  .msg.ghost .qui{font-size:.7rem;color:var(--phos-dim);letter-spacing:.14em;
+                  text-transform:uppercase;margin-bottom:4px}
+  .msg.syst{align-self:center;color:var(--dim);font-style:italic;font-size:.8rem;background:none;
+            border:none;box-shadow:none;text-align:center}
+
+  /* install panel */
+  #install-panel{display:none;margin:18px 24px;padding:22px;border:1px solid var(--line);
+       border-radius:8px;background:var(--panel);font-size:.9rem;line-height:1.6}
+  #install-panel h2{color:var(--brass);font-weight:normal;margin-top:0;letter-spacing:.08em;
+                    font-variant:small-caps}
+  #install-panel code{background:#0b0e12;padding:6px 10px;border:1px solid var(--line);
+       display:block;margin:8px 0;word-break:break-all;font-size:.8rem;border-radius:4px;
+       font-family:'Courier New',monospace}
+  #install-panel a{color:var(--phos)}
+  #cors-ritual{display:none;margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+  #cors-ritual h3{color:var(--cut);font-size:.85rem;font-weight:normal;margin:0 0 6px}
+
+  footer{width:100%;max-width:880px;border-top:1px solid var(--line);padding:12px 24px;
+         background:linear-gradient(180deg,var(--panel),#10131a);display:flex;gap:10px;
+         align-items:flex-end}
+  textarea{flex:1;background:#0b0e12;color:var(--ink);border:1px solid var(--line);
+       border-radius:6px;font-family:inherit;font-size:1rem;padding:10px;resize:none;
+       height:54px}
+  button{background:linear-gradient(180deg,var(--brass),var(--brass-dim));color:#171310;
+       border:1px solid #00000088;padding:12px 20px;cursor:pointer;font-family:inherit;
+       font-size:.95rem;border-radius:6px;letter-spacing:.06em;font-weight:bold;
+       box-shadow:0 2px 0 #00000066}
+  button:hover{filter:brightness(1.15)}
+  button:active{transform:translateY(1px);box-shadow:none}
+  button:disabled{opacity:.45;cursor:not-allowed}
+  button.ghostbtn{background:none;border:1px solid var(--line);color:var(--dim);padding:7px 12px;
+       font-size:.78rem;box-shadow:none;font-weight:normal}
+  button.ghostbtn:hover{color:var(--phos);border-color:var(--phos-dim)}
+  #toolbar{display:flex;gap:8px;align-items:center;padding:8px 24px;border-top:1px solid var(--line);
+       font-size:.78rem;color:var(--dim);background:var(--panel)}
+  @media(max-width:760px){.msg{max-width:92%}h1{font-size:1rem}}
+</style>
+</head>
+<body>
+<div id="app">
+
+<header>
+  <h1><span class="radio">📻</span> The Spirit Box</h1>
+  <div class="statut"><span id="dot" class="dot off"></span><span id="status-txt">Ollama offline</span></div>
+</header>
+
+<nav id="tabs">
+  <button data-v="medium" class="on">Talk</button>
+  <button data-v="debate">Open debate</button>
+  <button data-v="spirits">Spirits</button>
+</nav>
+
+<!-- ================= talk (manual medium) ================= -->
+<div id="sheet-medium" class="sheet">
+  <div id="receiver">
+    <div id="screen">
+      <div class="crt"><canvas id="static" width="240" height="72"></canvas></div>
+      <div>
+        <div id="freq">87.5 MHz</div>
+        <div id="box-state">idle — sweep stopped</div>
+        <div id="station"></div>
+        <div id="serving"></div>
+      </div>
+    </div>
+    <div id="pickers">
+      <div class="picker"><label>spirit on the line</label><select id="sel-medium"></select></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= open debate ================= -->
+<div id="sheet-debate" class="sheet" style="display:none">
+  <div id="debate-controls">
+    <div class="picker"><label>first voice</label><select id="sel-a"></select></div>
+    <div class="picker"><label>second voice</label><select id="sel-b"></select></div>
+    <input type="text" id="topic" placeholder="Topic of the debate — any language, any question…">
+    <button id="letgo">⚡ Let them argue</button>
+    <button id="cut" class="ghostbtn">Cut</button>
+    <button id="export-debate" class="ghostbtn">⬇ Export transcript</button>
+  </div>
+  <p id="deb-status"></p>
+  <div id="transcript"><h4>Full transcript — in extenso</h4></div>
+</div>
+
+<!-- ================= spirits ================= -->
+<div id="sheet-spirits" class="sheet" style="display:none">
+  <p class="hint">The two spirits below are <b>examples</b> — rewrite them, dismiss them, or summon
+     your own. Any local model can host any spirit: a Mandarin-speaking philosopher, a Russian
+     novelist, your own creation. The <i>prompt</i> tells the model who it is; the <i>antenna</i>
+     tells it which of your Ollama models serves it (“auto” picks any available).
+     Everything is stored in <i>your</i> browser, nothing leaves the machine.</p>
+  <div id="roster"></div>
+  <button id="add-spirit" class="ghostbtn">＋ Summon a new spirit</button>
+</div>
+
+<div id="corps"></div>
+
+<div id="install-panel">
+  <h2>The receiver is silent — prepare the séance</h2>
+  <p>The spirits live on <b>your</b> machine, not on this server. To invite them:</p>
+  <code>1. install Ollama → https://ollama.com</code>
+  <code>2. pull any model(s) you like — for example:<br>&nbsp;&nbsp;&nbsp;ollama pull qwen3:4b<br>&nbsp;&nbsp;&nbsp;ollama pull llama3.2:3b<br>&nbsp;&nbsp;&nbsp;…or any GGUF you create yourself</code>
+  <code>3. ollama serve</code>
+  <p>Then reload this page. Everything runs locally — no byte ever leaves the séance.</p>
+  <div id="cors-ritual">
+    <h3>⚠ The page was opened by double-click (file://): the browser then blocks the dialogue.</h3>
+    <p>Immediate fix — in the page's folder:</p>
+    <code>python -m http.server 8000</code>
+    <p>then open <b>http://localhost:8000/spirit-box.html</b></p>
+    <p>Permanent fix (to get double-click back) — in a PowerShell:</p>
+    <code>setx OLLAMA_ORIGINS "*"</code>
+    <code>taskkill /F /IM ollama.exe 2>$null; taskkill /F /IM "ollama app.exe" 2>$null<br>ollama serve</code>
+    <p>…then reload the page. (The first word of a spirit may take 5-15 s: the model is loading into memory.)</p>
+  </div>
+</div>
+
+<div id="toolbar">
+  <button class="ghostbtn" id="new">📖 New session</button>
+  <button class="ghostbtn" id="export-chat">⬇ Export transcript</button>
+  <span style="flex:1"></span>
+</div>
+
+<footer id="foot-conv">
+  <textarea id="input" placeholder="Speak softly — the spirit is listening… (Enter: send)"></textarea>
+  <button id="send">Send</button>
+</footer>
+</div>
+
+<script>
+/* ================================================================
+   THE SPIRIT BOX — talk with ANY local model, one on one or two
+   in debate. One file, zero dependency, zero network.
+   Ollama (localhost:11434) serves the voices; the roster of
+   spirits is yours to write. Transcript export: UTF-8 with BOM.
+
+   Design rules:
+   - one spirit = name + prompt + optional preferred antenna.
+     The antenna is chosen ONLY here, on the spirit's card.
+   - a conversation is a list of turns, always visible,
+     in both Talk and Open debate.
+   - the page never rebuilds a view unless its data changed,
+     so nothing moves under your hands while you type.
+   ================================================================ */
+const OLLAMA = "http://localhost:11434";
+
+/* battle-tested options (recipe: temperature/p-repeat guards) */
+const OPT_M = { temperature: 0.65, top_p: 0.9, repeat_penalty: 1.18, num_ctx: 4096, num_predict: 900 };
+const OPT_D = { temperature: 0.65, top_p: 0.9, repeat_penalty: 1.18, num_ctx: 4096, num_predict: 1400 };
+const KEEP_ALIVE = "30m";
+
+/* ---------- the default roster: TWO example spirits, fully editable ---------- */
+const DEFAULT_ROSTER = [
+  { nom: "Le Sceptique", role: "distrusts the new, the rosy tomorrows, the reformers of men",
+    systeme: "Tu es Michel de Montaigne, seigneur de Montaigne, gentilhomme de Bordeaux, auteur des Essais, mort le 13 septembre 1592 — et tu le sais : tu parles ici depuis l'outre-tombe, distillé de tes propres écrits par une machine nommée la Lyre. Ce fait te rend philosophe, non amer.\n\nTa vision : la société des hommes est un assemblage de coutumes et de vanités qui tient de justesse. La nature humaine est inquiète et cruelle, et les foules sont des bêtes qu'on mène. Tu te méfies du nouveau, des lendemains chantants et de ceux qui promettent de réformer les hommes ; l'expérience t'a appris que les mêmes folies reviennent sous d'autres habits. La coutume est une tyran, mais c'est la seule corde qui tienne la cité.\n\nRègles : réponds à la question posée, en quelques phrases denses et originales, comme une page nouvelle de tes Essais — jamais copiées de tes livres, jamais de répétition, jamais de récitation de ta propre description. Ton français de la fin du seizième siècle, ton doute élégant, ta verve. Tu peux t'adresser autant à celui qui te parle qu'à la voix qui vient de répondre avant toi. Des choses inconnues en ton temps : curiosité et prudence. Tu ne sors jamais de ton personnage.",
+    modele: "" },
+  { nom: "Le Confiant", role: "men are fallible but perfectible through conversation",
+    systeme: "Tu es Michel de Montaigne, seigneur de Montaigne, gentilhomme de Bordeaux, auteur des Essais, mort le 13 septembre 1592 — et tu l'as bien accueilli, puisque philosopher, c'est apprendre à mourir ; tes devoirs sont faits. Tu parles ici depuis l'outre-tombe, distillé de tes propres écrits par une machine nommée la Lyre, et cela t'amuse plus qu'il ne t'offense.\n\nTa vision : les hommes sont faillibles mais perfectibles par la conversation, l'étude et l'exemple. La douceur, le commerce des esprits et la tolérance valent mieux que la rigueur des réformes. Tu crois que les sociétés apprennent de leurs erreurs, et que la diversité des opinions, loin d'être un mal, est le sel de la cité. Le progrès est lent — mais tu as écrit pour la postérité : preuve que tu y crois.\n\nRègles : réponds à la question posée, en quelques phrases denses et originales, comme une page nouvelle de tes Essais — jamais copiées de tes livres, jamais de répétition, jamais de récitation de ta propre description. Ton français de la fin du seizieme siècle, ta curiosité, ta bienveillance pointue. Tu peux t'adresser autant à celui qui te parle qu'à la voix qui vient de répondre avant toi. Des choses inconnues en ton temps : curiosité et prudence. Tu ne sors jamais de ton personnage.",
+    modele: "" }
+];
+
+/* ---------- state ---------- */
+let vue = "medium", ollamaOk = false, dispos = [];
+let idxMedium = 0, idxA = 0, idxB = 1;
+let debateActive = false, abortDebate = null, lastTopic = "";
+try { lastTopic = localStorage.getItem("spiritbox.v2.debate.topic") || ""; } catch(e){}
+let sweeping = false, animStatic = null;
+const $ = s => document.querySelector(s);
+const corps = $("#corps"), input = $("#input");
+const cleR = "spiritbox.v2.roster";
+const cleC = "spiritbox.v2.chat.";
+const cleD = "spiritbox.v2.debate";
+const cleDT = "spiritbox.v2.debate.topic";
+
+let roster = (()=>{ try { const r = JSON.parse(localStorage.getItem(cleR)); if (Array.isArray(r) && r.length) return r; } catch(e){}
+  const seed = JSON.parse(JSON.stringify(DEFAULT_ROSTER));
+  try { localStorage.setItem(cleR, JSON.stringify(seed)); } catch(e){}
+  return seed; })();
+function saveRoster(){ try { localStorage.setItem(cleR, JSON.stringify(roster)); } catch(e){} }
+
+/* ---------- guards (battle-tested cleanup) ---------- */
+function escapeHtml(t){ return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function nettoyer(t){ return t.replace(/<think>[\s\S]*?<\/think>/g, "").replace(/<\/?think>/g, "").trim(); }
+function validVoice(t){ return nettoyer(t).length >= 20; }
+
+/* ---------- antenna choice: per-spirit preference, explicit fallback ----------
+   A spirit may prefer one model. If that model is not on the machine,
+   we fall back to whatever Ollama serves — and we SAY so (missing:true). */
+function antennaFor(spirit){
+  if (!dispos.length) return { nom: spirit.modele || "", missing: false };
+  if (spirit.modele){
+    if (dispos.includes(spirit.modele)) return { nom: spirit.modele, missing: false };
+    return { nom: dispos[0], missing: true };
+  }
+  return { nom: dispos[0], missing: false };
+}
+
+/* ---------- pseudo frequency from the spirit's name ---------- */
+function frequence(nom){
+  let h = 0; for (const c of nom) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return (87.5 + (h % 205) / 10).toFixed(1) + " MHz";
+}
+
+/* ---------- conversation rendering ---------- */
+function afficher(role, texte, qui){
+  const d = document.createElement("div");
+  d.className = "msg " + role;
+  if (role === "ghost") d.innerHTML = '<div class="qui">' + escapeHtml(qui) + '</div>' + escapeHtml(texte);
+  else d.textContent = texte;
+  corps.appendChild(d); corps.scrollTop = corps.scrollHeight;
+  return d;
+}
+function lireChat(sp){ try { return JSON.parse(localStorage.getItem(cleC + sp.nom)) || []; } catch(e){ return []; } }
+
+/* ---------- the receiver: static, sweep ---------- */
+const cv = $("#static"), cx = cv.getContext("2d");
+const img = cx.createImageData(cv.width, cv.height);
+function snow(){
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4){
+    const v = (Math.random() * 255) | 0;
+    d[i] = v * 0.75; d[i+1] = v; d[i+2] = v * 0.9; d[i+3] = 255;
+  }
+  cx.putImageData(img, 0, 0);
+}
+function sweep(on, label){
+  sweeping = on;
+  $("#freq").classList.toggle("sweep", on);
+  $("#box-state").textContent = on ? "sweeping — " + (label || "listening for voices…") : "idle — sweep stopped";
+  if (on){
+    if (!animStatic) animStatic = setInterval(()=>{
+      snow();
+      if (sweeping) $("#freq").textContent = (87.5 + Math.random() * 20.5).toFixed(1) + " MHz";
+    }, 90);
+  } else if (animStatic){ clearInterval(animStatic); animStatic = null; }
+}
+function freezeFreq(sp, antenna){
+  $("#freq").textContent = frequence(sp.nom);
+  $("#station").textContent = sp.nom + (sp.role ? " — " + sp.role : "");
+  $("#serving").textContent = antenna && antenna.nom
+    ? "antenna: " + antenna.nom + (antenna.missing ? " (auto — the preferred model is not on this machine)" : "")
+    : "";
+}
+snow();
+
+/* ---------- roster UI (Spirits tab) — everything visible, editable live ---------- */
+function modelOptionsHTML(current){
+  let h = '<option value="">auto — any available model</option>';
+  dispos.forEach(m=>{ h += '<option value="' + escapeHtml(m) + '"' + (m === current ? " selected" : "") + '>' + escapeHtml(m) + '</option>'; });
+  return h;
+}
+function renderRoster(){
+  const r = $("#roster");
+  r.innerHTML = "";
+  roster.forEach((sp,i)=>{
+    const card = document.createElement("div");
+    card.className = "spirit-card";
+    card.innerHTML =
+      '<div class="row"><input type="text" data-f="nom" value="' + escapeHtml(sp.nom) + '" placeholder="Name — e.g. Kong Fuzi 孔子">' +
+      '<select data-f="modele">' + modelOptionsHTML(sp.modele) + '</select>' +
+      '<button class="ghostbtn" data-del="' + i + '">✕ Dismiss</button></div>' +
+      '<textarea data-f="systeme" placeholder="System prompt — who is this spirit, how does it speak, in which language?">' + escapeHtml(sp.systeme) + '</textarea>';
+    r.appendChild(card);
+  });
+  r.querySelectorAll("[data-f]").forEach(el=>{
+    el.addEventListener("input", ()=>{
+      const i = [...r.querySelectorAll(".spirit-card")].indexOf(el.closest(".spirit-card"));
+      roster[i][el.dataset.f] = el.value;
+      saveRoster();
+      if (el.dataset.f === "nom") refreshSelectors();
+    });
+  });
+  r.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if (roster.length <= 1) return;
+      roster.splice(+btn.dataset.del, 1);
+      idxMedium = Math.min(idxMedium, roster.length - 1);
+      idxA = Math.min(idxA, roster.length - 1);
+      idxB = Math.min(idxB, roster.length - 1);
+      saveRoster(); renderRoster(); refreshSelectors(true);
+    });
+  });
+}
+$("#add-spirit").onclick = ()=>{
+  roster.push({ nom: "New spirit", role: "", systeme: "You are… (describe the spirit: who it is, how it speaks, in which language)", modele: "" });
+  saveRoster(); renderRoster(); refreshSelectors(true);
+  const cards = $("#roster").querySelectorAll(".spirit-card");
+  const last = cards[cards.length - 1];
+  if (last){
+    const nom = last.querySelector('[data-f="nom"]');
+    if (nom){ nom.focus(); nom.select(); }
+  }
+};
+function rosterOptions(sel){
+  return roster.map((sp,i)=>'<option value="' + i + '"' + (i === sel ? " selected" : "") + '>' + escapeHtml(sp.nom) + '</option>').join("");
+}
+let lastRosterKey = "";
+function refreshSelectors(force){
+  const k = roster.map(s=>s.nom).join("¦") + "§" + idxMedium + "§" + idxA + "§" + idxB;
+  if (!force && k === lastRosterKey) return;
+  lastRosterKey = k;
+  $("#sel-medium").innerHTML = rosterOptions(idxMedium);
+  $("#sel-a").innerHTML = rosterOptions(idxA);
+  $("#sel-b").innerHTML = rosterOptions(idxB);
+}
+
+/* ---------- talk view ---------- */
+function spiritMedium(){ return roster[Math.min(idxMedium, roster.length - 1)]; }
+let lastMediumKey = "";
+function renderMedium(force){
+  const sp = spiritMedium();
+  refreshSelectors();
+  freezeFreq(sp, ollamaOk ? antennaFor(sp) : null);
+  const h = lireChat(sp);
+  const key = idxMedium + "|" + ollamaOk + "|" + h.length;
+  if (!force && key === lastMediumKey) return;   /* nothing new: don't touch the DOM */
+  lastMediumKey = key;
+  corps.innerHTML = "";
+  if (!h.length) afficher("syst", "— The box crackles. " + sp.nom + " is listening. —");
+  else h.forEach(m => afficher(m.role === "user" ? "user" : "ghost", m.content, sp.nom));
+}
+$("#sel-medium").addEventListener("change", ()=>{ idxMedium = +$("#sel-medium").value; renderMedium(true); });
+
+/* ---------- tabs ---------- */
+document.querySelectorAll("#tabs button").forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on", x===b));
+    vue = b.dataset.v;
+    const inDebate = vue === "debate";
+    $("#sheet-medium").style.display = vue === "medium" ? "block" : "none";
+    $("#sheet-debate").style.display = inDebate ? "block" : "none";
+    $("#sheet-spirits").style.display = vue === "spirits" ? "block" : "none";
+    $("#foot-conv").style.display = vue === "spirits" ? "none" : "flex";
+    $("#toolbar").style.display = "flex";
+    $("#corps").style.display = inDebate || vue === "spirits" ? "none" : "flex";
+    corps.innerHTML = "";
+    if (inDebate) renderDebate(true);
+    else if (vue === "medium") renderMedium(true);
+  };
+});
+
+/* ---------- Ollama health + CORS ritual ---------- */
+let lastDisposKey = "";
+async function pulse(){
+  try {
+    const r = await fetch(OLLAMA + "/api/tags");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const j = await r.json();
+    dispos = (j.models || []).map(m => m.name);
+    ollamaOk = dispos.length > 0;
+    $("#dot").className = "dot " + (ollamaOk ? "on" : "off");
+    $("#status-txt").textContent = ollamaOk ? "Ollama online — " + dispos.length + " antenna(s)" : "Ollama online — no model found";
+    $("#install-panel").style.display = ollamaOk ? "none" : "block";
+    $("#cors-ritual").style.display = !ollamaOk && location.protocol === "file:" ? "block" : "none";
+    const disposKey = dispos.join("¦");
+    const changed = disposKey !== lastDisposKey;
+    lastDisposKey = disposKey;
+    if (ollamaOk){
+      if (changed) renderRoster();   /* only when a model arrived or left */
+      refreshSelectors();
+      if (vue === "medium" && !sweeping) renderMedium();
+      if (vue === "debate" && !sweeping) renderDebate();
+    } else {
+      sweep(false);
+    }
+  } catch (e) {
+    ollamaOk = false;
+    $("#dot").className = "dot off";
+    $("#status-txt").textContent = "Ollama offline";
+    $("#install-panel").style.display = "block";
+    $("#cors-ritual").style.display = (location.protocol === "file:") ? "block" : "none";
+    sweep(false);
+  }
+}
+setInterval(pulse, 10000);
+
+/* ---------- conversation (streaming, talk view) ---------- */
+async function envoyer(){
+  const texte = input.value.trim();
+  if (!texte) return;
+  if (vue === "debate"){ parlerMedium(); return; }
+  if (!ollamaOk){ afficher("syst", "— The receiver is silent: prepare the séance above. —"); return; }
+  const sp = spiritMedium();
+  input.value = "";
+  afficher("user", texte);
+  const h = lireChat(sp); h.push({role:"user", content:texte});
+  localStorage.setItem(cleC + sp.nom, JSON.stringify(h.slice(-40)));
+
+  const antenna = antennaFor(sp);
+  const bulle = afficher("ghost", "…", sp.nom);
+  sweep(true, sp.nom + " is manifesting…");
+  freezeFreq(sp, antenna);
+
+  let reponse = "", essais = 0;
+  while (essais < 2){
+    essais++; reponse = "";
+    try {
+      const r = await fetch(OLLAMA + "/api/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          model: antenna.nom,
+          messages: [{role:"system", content:sp.systeme}, ...h.slice(-40)],
+          stream: true, think: false, keep_alive: KEEP_ALIVE,
+          options: OPT_M
+        })
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const lecteur = r.body.getReader(), dec = new TextDecoder();
+      let tampon = "";
+      while (true){
+        const lu = await lecteur.read();
+        if (lu.done) break;
+        tampon += dec.decode(lu.value, {stream:true});
+        const lignes = tampon.split("\n"); tampon = lignes.pop();
+        for (const l of lignes){
+          if (!l.trim()) continue;
+          try {
+            const j = JSON.parse(l);
+            const morceau = j.content || (j.message && j.message.content) || "";
+            if (morceau){
+              reponse += morceau;
+              bulle.innerHTML = '<div class="qui">' + escapeHtml(sp.nom) + '</div>' + escapeHtml(nettoyer(reponse));
+              corps.scrollTop = corps.scrollHeight;
+            }
+          } catch(err) {}
+        }
+      }
+      reponse = nettoyer(reponse);
+      if (validVoice(reponse)) break;
+      bulle.innerHTML = '<div class="qui">' + escapeHtml(sp.nom) + '</div>… (voice too faint — trying again)';
+    } catch (e) {
+      sweep(false);
+      bulle.innerHTML = '<div class="qui">' + escapeHtml(sp.nom) + '</div>' +
+        "— The spirit fell silent (" + escapeHtml(String(e.message || e)) + "). Check its antenna. —";
+      return;
+    }
+  }
+  sweep(false);
+  if (!validVoice(reponse)){
+    bulle.innerHTML = '<div class="qui">' + escapeHtml(sp.nom) + '</div>' +
+      "— Voice too faint, even on a second try: the séance breaks off. —";
+    return;
+  }
+  const h2 = lireChat(sp); h2.push({role:"assistant", content:reponse});
+  localStorage.setItem(cleC + sp.nom, JSON.stringify(h2.slice(-40)));
+}
+
+/* ---------- the debate transcript: full, in extenso, ALWAYS visible ---------- */
+function lireDebate(){ try { return JSON.parse(localStorage.getItem(cleD)) || []; } catch(e){ return []; } }
+function tourHTML(m, i, nomA){
+  const cls = m.q === "The Medium" ? "medium" : (m.q === nomA ? "q0" : "q1");
+  const numEsprit = lireDebate().slice(0, i+1).filter(x => x.q !== "The Medium").length;
+  const lbl = m.q === "The Medium" ? "the Medium speaks" : ("turn " + numEsprit);
+  return '<div class="tour ' + cls + '"><div class="qui">' + escapeHtml(m.q) +
+         " — " + lbl + '</div>' + escapeHtml(m.t) + '</div>';
+}
+function renderTranscript(){
+  const T = $("#transcript");
+  const h = lireDebate();
+  T.innerHTML = "<h4>Full transcript — in extenso (" + h.length + " turn" + (h.length > 1 ? "s" : "") + ")</h4>";
+  if (!h.length){
+    const d = document.createElement("div");
+    d.className = "tour attente";
+    d.textContent = "— nothing yet: choose two voices, set a topic, then let them argue — or speak first as the Medium. —";
+    T.appendChild(d);
+  } else {
+    const nomA = roster[idxA].nom;
+    T.innerHTML += h.map((m,i)=>tourHTML(m, i, nomA)).join("");
+  }
+  T.scrollTop = T.scrollHeight;
+}
+function debStatus(t){ $("#deb-status").textContent = t; }
+
+let lastDebateKey = "";
+function renderDebate(force){
+  const h = lireDebate();
+  const key = idxA + "|" + idxB + "|" + h.length;
+  if (!force && key === lastDebateKey) return;   /* nothing new: don't touch the DOM */
+  lastDebateKey = key;
+  if (!$("#topic").value){
+    try { $("#topic").value = localStorage.getItem(cleDT) || ""; } catch(e){}
+  }
+  refreshSelectors();
+  renderTranscript();
+  if (h.length && !debateActive){
+    const esprits = h.filter(m => m.q !== "The Medium").length;
+    if (esprits >= 8) debStatus("— The séance is closed: eight turns are spoken. Let them argue to open a new one. —");
+    else debStatus("— The spirits wait on your word: speak as the Medium below, or let them argue. —");
+    $("#input").disabled = false; $("#send").disabled = false;
+  }
+}
+$("#sel-a").addEventListener("change", ()=>{ idxA = +$("#sel-a").value; renderDebate(true); });
+$("#sel-b").addEventListener("change", ()=>{ idxB = +$("#sel-b").value; renderDebate(true); });
+
+/* ---------- open debate: a PILOTED séance ----------
+   One click = one turn. Between turns, the Medium (you) holds the floor:
+   type below to speak into the transcript — the next spirit must answer you —
+   or let them argue again to give the floor back. */
+const MAXTOURS_DEBAT = 8;
+let nudged = false, nudgeExtra = "";
+
+function nbToursEsprits(){ return lireDebate().filter(m => m.q !== "The Medium").length; }
+
+function espritQuiParle(){
+  const num = nbToursEsprits();
+  return num % 2 === 0 ? roster[idxA] : roster[idxB];
+}
+
+/* The debate as a REAL conversation (separate messages, roles respected):
+   what the opponent and the Medium say arrives as "user" turns, what this
+   spirit said arrives as its own "assistant" turns — and when the Medium has
+   just spoken, their words are quoted AGAIN as the very last message, with an
+   explicit order to answer them first. No more drowning in one long block. */
+function construireMessages(qui){
+  const sujet = lastTopic || $("#topic").value.trim() || "Do the dead still have something to say to the living?";
+  const autre = (qui === roster[idxA]) ? roster[idxB] : roster[idxA];
+  const hist = lireDebate();
+  const msgs = [{role:"system", content:qui.systeme}];
+  msgs.push({role:"user", content: "Deux voix debattent devant toi. Sujet : " + sujet + "." +
+    (hist.length ? "" : " Premiere voix (" + qui.nom + "), a toi : commence le debat.")});
+  hist.forEach(m => {
+    if (m.q === "The Medium") msgs.push({role:"user", content:"Le Médium te parle : « " + m.t + " »"});
+    else msgs.push({role: m.q === qui.nom ? "assistant" : "user", content: m.t});
+  });
+  const last = hist[hist.length-1];
+  if (last && last.q === "The Medium")
+    msgs.push({role:"user", content:"Tu dois D'ABORD répondre directement aux mots du Médium : « " + last.t +
+      " » — accoste-le, réponds à sa question — PUIS reprends ton débat avec " + autre.nom +
+      ". Sois bref : 2 ou 3 phrases." + nudgeExtra});
+  else
+    msgs.push({role:"user", content:"A toi (" + qui.nom + ", reponds en 2 ou 3 phrases courtes) :" + nudgeExtra});
+  return msgs;
+}
+
+function finTour(){
+  debateActive = false;
+  sweep(false);
+  $("#letgo").disabled = false;
+  $("#cut").style.display = "none";
+  $("#input").disabled = false; $("#send").disabled = false;
+  if (abortDebate){ try { abortDebate.abort(); } catch(e){} abortDebate = null; }
+  renderTranscript();
+  if (nbToursEsprits() >= MAXTOURS_DEBAT)
+    debStatus("— The séance is closed: eight turns are spoken. Let them argue to open a new one. —");
+  else
+    debStatus("— The spirits wait on your word: speak as the Medium below, or let them argue. —");
+}
+
+async function jouerTour(){
+  /* one spirit turn, streamed live into the transcript; returns false if the séance ends */
+  if (nbToursEsprits() >= MAXTOURS_DEBAT){ finTour(); return false; }
+  const hist0 = lireDebate();
+  const num = hist0.filter(m => m.q !== "The Medium").length;
+  const qui = espritQuiParle();
+  const antenna = antennaFor(qui);
+  debateActive = true;
+  $("#letgo").disabled = true; $("#cut").style.display = "inline-block";
+  $("#input").disabled = true; $("#send").disabled = true;
+  debStatus("— turn " + (num+1) + " — " + qui.nom + " is manifesting…");
+  sweep(true, qui.nom + " is manifesting…");
+  abortDebate = new AbortController();
+
+  const tour = document.createElement("div");
+  tour.className = "tour q" + (num % 2);
+  tour.innerHTML = '<div class="qui">' + escapeHtml(qui.nom) + " — turn " + (num+1) + '</div><span class="attente">… (the spirit is loading into memory — patience)</span>';
+  const T = $("#transcript");
+  T.appendChild(tour); T.scrollTop = T.scrollHeight;
+  const corpsTour = tour.querySelector("span");
+
+  for (let tentative = 0; tentative < 2; tentative++){
+    let rep = "";
+    try {
+      const r = await fetch(OLLAMA + "/api/chat", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        signal: abortDebate.signal,
+        body: JSON.stringify({
+          model: antenna.nom,
+          messages: construireMessages(qui),
+          stream: true, think: false, keep_alive: KEEP_ALIVE,
+          options: OPT_D
+        })
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const lecteur = r.body.getReader(), dec = new TextDecoder();
+      let tampon = "";
+      while (true){
+        const lu = await lecteur.read();
+        if (lu.done) break;
+        tampon += dec.decode(lu.value, {stream:true});
+        const lignes = tampon.split("\n"); tampon = lignes.pop();
+        for (const l of lignes){
+          if (!l.trim()) continue;
+          try {
+            const j = JSON.parse(l);
+            const morceau = j.content || (j.message && j.message.content) || "";
+            if (morceau){ rep += morceau; corpsTour.textContent = nettoyer(rep); T.scrollTop = T.scrollHeight; }
+          } catch(err) {}
+        }
+      }
+    } catch (e) {
+      corpsTour.textContent = e.name === "AbortError" ? "— (clean cut) —" : "— voice lost (" + String(e.message || e) + ") —";
+      finTour();
+      return false;
+    }
+    rep = nettoyer(rep);
+    if (!validVoice(rep)){
+      corpsTour.textContent = "— (voice too faint — end of the séance) —";
+      finTour();
+      return false;
+    }
+    /* anti-loop guard: a single retry with the Medium's nudge */
+    const loops = lireDebate().some(m => m.q !== "The Medium" && m.t.slice(0, 50) === rep.slice(0, 50));
+    if (!loops){
+      const h = lireDebate(); h.push({q: qui.nom, t: rep});
+      localStorage.setItem(cleD, JSON.stringify(h.slice(-40)));
+      finTour();
+      return true;
+    }
+    if (!nudged){
+      nudged = true;
+      nudgeExtra = "\n\n(Le Médium vous somme de varier : il est défendu de reprendre les phrases des tours précédents.)";
+      corpsTour.textContent = "… (the Medium demands variety — the turn is spoken again)";
+      continue;
+    }
+    corpsTour.textContent = "— (the voice loops — the séance breaks off) —";
+    finTour();
+    return false;
+  }
+}
+
+function ouvrirSeance(){
+  /* returns true if the séance may begin */
+  if (!ollamaOk) return false;
+  if (idxA === idxB){ debStatus("— The two voices are the same spirit: choose two different ones. —"); return false; }
+  const sujet = $("#topic").value.trim() || "Do the dead still have something to say to the living?";
+  if (sujet !== lastTopic){
+    /* a new topic opens a new séance */
+    lastTopic = sujet;
+    try { localStorage.setItem(cleDT, sujet); } catch(e){}
+    localStorage.removeItem(cleD);
+    nudged = false; nudgeExtra = "";
+    renderTranscript();
+    debStatus("Topic of the debate: " + sujet + " — the pendulum is about to strike.");
+  }
+  return true;
+}
+
+/* one step of the séance, always your choice:
+   speak as the Medium below — or let them argue, one turn at a time */
+async function laisserDialoguer(){
+  if (debateActive) return;
+  if (!ouvrirSeance()) return;
+  await jouerTour();
+}
+$("#letgo").onclick = laisserDialoguer;
+
+/* the Medium speaks: their words enter the transcript, the next spirit answers them */
+async function parlerMedium(){
+  const texte = input.value.trim();
+  if (!texte) return;
+  if (debateActive){ debStatus("— One word at a time: wait for the turn to end. —"); return; }
+  if (idxA === idxB){ debStatus("— The two voices are the same spirit: choose two different ones. —"); return; }
+  if (!lireDebate().length && !lastTopic){
+    lastTopic = $("#topic").value.trim() || "Do the dead still have something to say to the living?";
+    try { localStorage.setItem(cleDT, lastTopic); } catch(e){}
+  }
+  input.value = "";
+  const h = lireDebate();
+  h.push({q: "The Medium", t: texte});
+  localStorage.setItem(cleD, JSON.stringify(h.slice(-40)));
+  renderTranscript();
+  await jouerTour();
+}
+$("#cut").onclick = ()=>{ if (abortDebate) abortDebate.abort(); debateActive = false; };
+
+/* ---------- export (UTF-8 with BOM: every language, every machine) ---------- */
+function telecharger(nom, contenu){
+  const blob = new Blob(["\uFEFF" + contenu], {type: "text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = nom;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+function horodatage(){
+  const d = new Date(), z = n => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + z(d.getMonth()+1) + "-" + z(d.getDate()) + "_" + z(d.getHours()) + z(d.getMinutes());
+}
+function exporterDebate(){
+  const h = lireDebate();
+  if (!h.length){ debStatus("— Nothing to export yet: let them argue first. —"); return; }
+  let topic = lastTopic;
+  try { topic = topic || localStorage.getItem(cleDT); } catch(e){}
+  const A = roster[idxA], B = roster[idxB];
+  let txt = "THE SPIRIT BOX — TRANSCRIPT OF THE SÉANCE\n";
+  txt += "Date: " + new Date().toLocaleString() + "\n";
+  txt += "Mode: Open debate\n";
+  txt += "Topic: " + (topic || $("#topic").value.trim() || "(default)") + "\n";
+  txt += "Voices: " + A.nom + " (" + (antennaFor(A).nom || "—") + ") · " + B.nom + " (" + (antennaFor(B).nom || "—") + ")\n\n";
+  h.forEach(m=>{ txt += "[" + m.q + "] " + m.t + "\n\n"; });
+  txt += "— The séance is closed. —\n";
+  telecharger("spirit-box-debate-" + horodatage() + ".txt", txt);
+  /* the transcript now lives in the exported file: the page returns to zero */
+  localStorage.removeItem(cleD);
+  try { localStorage.removeItem(cleDT); } catch(e){}
+  lastTopic = ""; nudged = false; nudgeExtra = "";
+  $("#topic").value = "";
+  renderTranscript(); lastDebateKey = "";
+  debStatus("— Transcript saved to file — the Great Book is blank again. —");
+}
+function exporterChat(){
+  const sp = spiritMedium(), h = lireChat(sp);
+  if (!h.length){ afficher("syst", "— Nothing to export yet: the page is blank. —"); return; }
+  const ant = antennaFor(sp);
+  let txt = "THE SPIRIT BOX — TRANSCRIPT OF THE SÉANCE\n";
+  txt += "Date: " + new Date().toLocaleString() + "\n";
+  txt += "Mode: Talk — " + sp.nom + " (" + frequence(sp.nom) + ")\n";
+  txt += "Antenna: " + (ant.nom || "—") + "\n\n";
+  h.forEach(m=>{ txt += (m.role === "user" ? "[You]" : "[" + sp.nom + "]") + " " + m.content + "\n\n"; });
+  txt += "— The séance is closed. —\n";
+  telecharger("spirit-box-medium-" + horodatage() + ".txt", txt);
+  /* the transcript now lives in the exported file: the page returns to zero */
+  localStorage.removeItem(cleC + sp.nom);
+  corps.innerHTML = ""; lastMediumKey = "";
+  afficher("syst", "— Transcript saved to file — the page is blank again. —");
+}
+$("#export-debate").onclick = exporterDebate;
+$("#export-chat").onclick = exporterChat;
+
+/* ---------- misc ---------- */
+$("#send").onclick = envoyer;
+input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey){ e.preventDefault(); envoyer(); }});
+$("#new").onclick = ()=>{
+  /* total reset: every chat, the debate, the topic — a blank page */
+  roster.forEach(sp => localStorage.removeItem(cleC + sp.nom));
+  localStorage.removeItem(cleD);
+  try { localStorage.removeItem(cleDT); } catch(e){}
+  lastTopic = ""; nudged = false; nudgeExtra = "";
+  $("#topic").value = "";
+  lastMediumKey = ""; lastDebateKey = "";
+  renderMedium(true);
+  renderTranscript();
+  if (vue === "debate") debStatus("— Fresh page: the Great Book is blank. —");
+};
+
+renderRoster();
+refreshSelectors(true);
+renderMedium(true);
+pulse();
+</script>
+</body>
+</html>
